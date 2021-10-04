@@ -223,7 +223,7 @@ describe("filter", function () {
     filters = {minEmployees: 4};
     companies = await Company.filter(filters);
     expect(companies).toEqual([]);
-    filters = {maxEmployees: 3, minEmployees: 1};
+    filters = {maxEmployees: 3, minEmployees: 2};
     companies = await Company.filter(filters);
     expect(companies).toEqual([{
       handle: "c2",
