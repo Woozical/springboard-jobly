@@ -58,7 +58,7 @@ async function commonBeforeAll() {
     lastName: "U3L",
     email: "user3@user.com",
     password: "password3",
-    isAdmin: false,
+    isAdmin: true,
   });
 }
 
