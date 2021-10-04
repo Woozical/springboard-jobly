@@ -35,7 +35,6 @@ describe("POST /companies", function () {
         .post("/companies")
         .send(newCompany)
         .set("authorization", `Bearer ${adminToken}`);
-    console.log(resp);
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       company: newCompany,
@@ -267,7 +266,6 @@ describe("GET /companies?queryStringFilter", function () {
 
   test("filter by min and max # of employees", async function() {
     const resp1 = await request(app).get("/companies?minEmployees=2");
-    console.log(resp1.body);
     expect(resp1.body).toEqual({
       companies:
         [

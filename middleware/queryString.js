@@ -1,5 +1,12 @@
 const { BadRequestError } = require('../expressError');
 
+/** Cleans an incoming query string to be used in filtering company results.
+ * Adds the "cleanQuery" object property to the request and then continues
+ * cleanQuery is a subset of the query string with only the key:values expected,
+ * as defined by the filter definitions of the Company model.
+ * May improve this later to directly reference the Company model's filters for cleaning.
+ */
+
 function cleanCompanyQString(req, res, next){
   if (Object.keys(req.query).length > 0){
     // Clean out bad query parameters
