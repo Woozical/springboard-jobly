@@ -13,8 +13,8 @@ class Company {
    */
 
   static filterDefinitions = {
-    minEmployees : {column: "num_employees", operation: ">"},
-    maxEmployees : {column: "num_employees", operation: "<"},
+    minEmployees : {column: "num_employees", operation: ">="},
+    maxEmployees : {column: "num_employees", operation: "<="},
     name: {column: "name", operation: "ILIKE"}
   }
 
