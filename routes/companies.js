@@ -7,6 +7,7 @@ const express = require("express");
 
 const { BadRequestError } = require("../expressError");
 const { ensureLoggedIn } = require("../middleware/auth");
+const { cleanCompanyQString } = require("../middleware/queryString");
 const Company = require("../models/company");
 
 const companyNewSchema = require("../schemas/companyNew.json");
@@ -50,27 +51,11 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: none
  */
 
-router.get("/", async function (req, res, next) {
+router.get("/", cleanCompanyQString, async function (req, res, next) {
   try {
-    // Use query string to provide search filters, maybe move this code block into middleware?
-    if (Object.keys(req.query).length > 0){
-      // Clean out bad query parameters
-      const params = {};
-      if (req.query.name) params.name = req.query.name;
-      if (req.query.minEmployees) params.minEmployees = req.query.minEmployees;
-      if (req.query.maxEmployees) params.maxEmployees = req.query.maxEmployees;
-      if ((params.minEmployees && params.maxEmployees) && (params.minEmployees > params.maxEmployees)){
-        throw new BadRequestError('Min employees can not be greater than max employees');
-      }
-      // Do a filtered selection if we have good parameters
-      if (Object.keys(params).length > 0){
-        const companies = await Company.filter(params);
-        return res.json({ companies });
-      }
-    } else {
-      const companies = await Company.findAll();
-      return res.json({ companies });
-    }
+    // Do a filtered selection if we have good parameters passed from middleware
+    const companies = req.cleanQuery ? await Company.filter(req.cleanQuery) : await Company.findAll();
+    return res.json({ companies });
   } catch (err) {
     return next(err);
   }
