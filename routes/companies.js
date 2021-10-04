@@ -45,15 +45,32 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Can filter on provided search filters:
  * - minEmployees
  * - maxEmployees
- * - nameLike (will find case-insensitive, partial matches)
+ * - name (will find case-insensitive, partial matches)
  *
  * Authorization required: none
  */
 
 router.get("/", async function (req, res, next) {
   try {
-    const companies = await Company.findAll();
-    return res.json({ companies });
+    // Use query string to provide search filters, maybe move this code block into middleware?
+    if (Object.keys(req.query).length > 0){
+      // Clean out bad query parameters
+      const params = {};
+      if (req.query.name) params.name = req.query.name;
+      if (req.query.minEmployees) params.minEmployees = req.query.minEmployees;
+      if (req.query.maxEmployees) params.maxEmployees = req.query.maxEmployees;
+      if ((params.minEmployees && params.maxEmployees) && (params.minEmployees > params.maxEmployees)){
+        throw new BadRequestError('Min employees can not be greater than max employees');
+      }
+      // Do a filtered selection if we have good parameters
+      if (Object.keys(params).length > 0){
+        const companies = await Company.filter(params);
+        return res.json({ companies });
+      }
+    } else {
+      const companies = await Company.findAll();
+      return res.json({ companies });
+    }
   } catch (err) {
     return next(err);
   }

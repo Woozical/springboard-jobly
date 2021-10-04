@@ -204,6 +204,103 @@ describe("PATCH /companies/:handle", function () {
   });
 });
 
+describe("GET /companies?queryStringFilter", function () {
+  test("filter by case insensitive company name", async function() {
+    const resp = await request(app).get("/companies?name=c1");
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          }
+        ]
+    });
+  });
+
+  test("invalid parameters are ignored and don't muck things up", async function(){
+    const resp = await request(app).get("/companies?name=c2&minDragons=10");
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          },
+        ]
+    });
+  });
+
+  test("filter by min and max # of employees", async function() {
+    const resp1 = await request(app).get("/companies?minEmployees=2");
+    console.log(resp1.body);
+    expect(resp1.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          },
+          {
+            handle: "c3",
+            name: "C3",
+            description: "Desc3",
+            numEmployees: 3,
+            logoUrl: "http://c3.img",
+          }
+        ]
+    });
+    const resp2 = await request(app).get("/companies?maxEmployees=2");
+    expect(resp2.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          },
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          }
+        ]
+    });
+    const resp3 = await request(app).get("/companies?minEmployees=2&maxEmployees=2");
+    expect(resp3.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          }
+        ]
+    })
+  });
+
+  test("fails: q string where minEmployees is > maxEmployees", async function(){
+    const resp = await request(app).get("/companies?minEmployees=3&maxEmployees=2");
+    expect(resp.statusCode).toEqual(400);
+  });
+});
+
 /************************************** DELETE /companies/:handle */
 
 describe("DELETE /companies/:handle", function () {
