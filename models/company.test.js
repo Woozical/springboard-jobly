@@ -206,3 +206,22 @@ describe("remove", function () {
     }
   });
 });
+
+/************************************** filter */
+
+describe("filter", function () {
+  test("works", async function() {
+    let filters = {name: "2", maxEmployees: 3};
+    let companies = await Company.filter(filters);
+    expect(companies).toEqual([{
+      handle: "c2",
+      name: "C2",
+      description: "Desc2",
+      numEmployees: 2,
+      logoUrl: "http://c2.img",
+    }]);
+    filters = {minEmployees: 4};
+    companies = await Company.filter(filters);
+    expect(companies).toEqual([]);
+  });
+});

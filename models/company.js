@@ -2,11 +2,22 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlForFilter } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
 class Company {
+
+  /** Static property, maps query string parameter keys to objects of the filter interface
+   * that are used by sqlForFilter. Used for constructing WHERE clauses for filtering/searching.
+   */
+
+  static filterDefinitions = {
+    minEmployees : {column: "num_employees", operation: ">"},
+    maxEmployees : {column: "num_employees", operation: "<"},
+    name: {column: "name", operation: "ILIKE"}
+  }
+
   /** Create a company (from data), update db, return new company data.
    *
    * data should be { handle, name, description, numEmployees, logoUrl }
@@ -139,6 +150,28 @@ class Company {
     const company = result.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+  }
+  static async filter(params) {
+    // Define filters based on given params
+    const filters = [];
+    for (let key in params){
+      const filter = Company.filterDefinitions[key]
+      filter.value = params[key];
+      filters.push(filter);
+    }
+    // Build WHERE clause
+    const whereClause = sqlForFilter(filters);
+    const companiesRes = await db.query(
+      `SELECT handle,
+              name,
+              description,
+              num_employees AS "numEmployees",
+              logo_url AS "logoUrl"
+       FROM companies
+       WHERE ${whereClause.string}
+       ORDER BY name`,
+       whereClause.values);
+    return companiesRes.rows;
   }
 }
 
