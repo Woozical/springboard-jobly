@@ -6,6 +6,7 @@ const {
   authenticateJWT,
   ensureLoggedIn,
   ensureAdmin,
+  ensureSameUser
 } = require("./auth");
 
 
@@ -110,4 +111,44 @@ describe("ensureAdmin", function () {
     };
     ensureAdmin(req, res, next);
   });
+});
+
+describe("ensureSameUser", function () {
+  const req = { params: { username: "test" } };
+  
+  test("works", function () {
+    expect.assertions(1);
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    const next = function (err) { 
+      expect(err).toBeFalsy();
+    };
+    ensureSameUser(req, res, next);
+  });
+  
+  test("works if admin", function () {
+    expect.assertions(1);
+    const res = { locals: { user: { username: "test2", isAdmin: true } } };
+    const next = function (err) { 
+      expect(err).toBeFalsy();
+    };
+    ensureSameUser(req, res, next);
+  });
+
+  test("forbidden if not same user", function () {
+    expect.assertions(1);
+    const res = { locals: { user: { username: "test2", isAdmin: false } } };
+    const next = function (err) {
+      expect(err instanceof ForbiddenError).toBeTruthy();
+    };
+    ensureSameUser(req, res, next);
+  });
+
+  test("unauth if not logged in", function () {
+    expect.assertions(1);
+    const res = { locals: {} };
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy();
+    };
+    ensureSameUser(req, res, next);
+  })
 })

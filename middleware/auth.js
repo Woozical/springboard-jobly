@@ -59,9 +59,29 @@ function ensureAdmin(req, res, next) {
   }
 }
 
+/**
+ * Middleware for users routes, provides authorization if logged in username matches
+ * the username in the route. Admin users are also authorized to the route. Also checks
+ * for login. As such, this middleware can be used in lieu of, or used after, ensureLoggedIn
+ * on protected routes. Raises forbidden if username mismatch, and unauth on not logged in.
+ */
+
+function ensureSameUser(req, res, next) {
+  try{
+    if (!res.locals.user) throw new UnauthorizedError();
+    if (res.locals.user.username !== req.params.username && res.locals.user.isAdmin !== true){
+      throw new ForbiddenError("You do not have access to this operation.")
+    }
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureSameUser
 };
