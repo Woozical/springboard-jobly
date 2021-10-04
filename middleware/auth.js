@@ -42,10 +42,17 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+/**
+ * Middleware to use when request requires authenticated admin privs.
+ * As a failsafe, also checks for login. As such, this middleware can be
+ * used in lieu of, or used after, ensureLoggedIn on protected routes
+ * Raises forbidden if not admin, and unauth on not loggged in
+ */
+
 function ensureAdmin(req, res, next) {
   try {
     if (!res.locals.user) throw new UnauthorizedError();
-    if (res.locals.user.is_admin !== true) throw new ForbiddenError();
+    if (res.locals.user.isAdmin !== true) throw new ForbiddenError("This operation requires admin privileges.");
     return next();
   } catch (err) {
     return next(err);
