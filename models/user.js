@@ -205,7 +205,11 @@ class User {
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
 
-  /** Create an entry in the applications associate table */
+  /** Create an entry on the applications association table in the DB
+   *  Returns undefined
+   *  Throws NotFoundError if username or jobID are not valid foreign keys
+   *  Throws BadRequestError on duplicate attempts
+  */
 
   static async applyTo(username, jobID){
     try{
@@ -227,10 +231,8 @@ class User {
   /** Returns an object with user data and an array of job data for each job that user
    *  has applied to. Throws NotFoundError if username not found.
    * 
-   *  uName => {
-   *    user: {username, firstName, lastName, email, isAdmin, applications}
-   *    where applications is: [ { id, title, salary, equity, companyHandle }, ...]
-   *    
+   *  uName => { username, firstName, lastName, email, isAdmin, applications }
+   *    where applications is: [ { id, title, salary, equity, companyHandle }, ...] 
    */
 
   static async getApplied(uName){

@@ -42,7 +42,7 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
 /** GET /  =>
  *   { jobs: [ { id, title, salary, equity, companyHandle }, ...] }
  *
- * TO DO: Can filter on provided search filters:
+ * Can filter on provided search filters:
  * - minEmployees
  * - maxEmployees
  * - name (will find case-insensitive, partial matches)

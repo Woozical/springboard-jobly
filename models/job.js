@@ -22,9 +22,9 @@ class Job{
 
   /** Create a job (from data), update db, return new job data.
   *
-  * data should be { title, salary, equity, company_handle }
+  * data should be { title, salary, equity, companyHandle }
   *
-  * Returns { id, title, salary, equity, company_handle }
+  * Returns { id, title, salary, equity, companyHandle }
   *
   * Throws BadRequestError if company_handle not in database.
   * */
@@ -133,10 +133,10 @@ class Job{
             RETURNING id`,
           [jobID]);
 
-  if (result.rowCount < 1) throw new NotFoundError(`No job with ID: ${jobID}`);
+    if (result.rowCount < 1) throw new NotFoundError(`No job with ID: ${jobID}`);
   }
-  /**
-  * Performs a filtered selection from the database. These filters are defined
+
+  /** Performs a filtered selection from the database. These filters are defined
   * by the 'params' argument, which is an object, where they key is the type of filter
   * and the value is the expectation of that filter. Each 'params' key is mapped to a definition
   * found at the top of this class, which defines how that filter type corresponds to SQL.
@@ -175,15 +175,12 @@ class Job{
     return jobsRes.rows;
   }
 
-  /**
-   * Returns an object with job data and an array of user data for each user
+  /** Returns an object with job data and an array of user data for each user
    * that has applied to the given job. Will return an empty array if there are
    * no applicants. Throws NotFoundError if invalid job id given.
    * 
-   *  jobID => {
-   *    job: { id, title, salary, equity, companyHandle },
-   *    applicants: [ { username, firstName, lastName, email, isAdmin }, ... ]
-   *    }
+   *  jobID => { id, title, salary, equity, companyHandle, applicants }
+   *           where applicants is: [ { username, firstName, lastName, email, isAdmin }, ... ]
    */
   static async getApplicants(jobID){
     const result = await db.query(
