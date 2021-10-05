@@ -98,8 +98,35 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [{
+        id: expect.any(Number),
+        companyHandle: "c1",
+        title: "j1",
+        salary: 1000,
+        equity: "0.1"
+      }]
     });
   });
+
+  test("works with no jobs", async function () {
+    await Company.create(
+      {
+        handle: "c0",
+        name: "C0",
+        description: "Desc0",
+        numEmployees: 0,
+        logoUrl: "http://c0.img",
+      });
+    let company = await Company.get("c0");
+    expect(company).toEqual({
+      handle: "c0",
+      name: "C0",
+      description: "Desc0",
+      numEmployees: 0,
+      logoUrl: "http://c0.img",
+      jobs: []
+    })
+  })
 
   test("not found if no such company", async function () {
     try {

@@ -80,21 +80,32 @@ class Company {
    * Throws NotFoundError if not found.
    **/
 
-  static async get(handle) {
+  static async get(cHandle) {
     const companyRes = await db.query(
           `SELECT handle,
                   name,
                   description,
                   num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
+                  logo_url AS "logoUrl",
+                  jobs.id, jobs.title,
+                  jobs.salary, jobs.equity,
+                  jobs.company_handle AS "companyHandle"
            FROM companies
+           LEFT JOIN jobs ON companies.handle = jobs.company_handle
            WHERE handle = $1`,
-        [handle]);
+        [cHandle]);
 
-    const company = companyRes.rows[0];
-
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
-
+    if (companyRes.rowCount < 1) throw new NotFoundError(`No company: ${cHandle}`);
+    
+    const {handle, name, description, numEmployees, logoUrl} = companyRes.rows[0];
+    let jobs = [];
+    // Build out our array of job objects if we got at least one row of job data from the query
+    if (companyRes.rows[0].id){
+      jobs = companyRes.rows.map(
+        ({id, title, salary, equity, companyHandle}) => ({id, title, salary, equity, companyHandle})
+      );
+    }
+    const company = {handle, name, description, numEmployees, logoUrl, jobs};
     return company;
   }
 
