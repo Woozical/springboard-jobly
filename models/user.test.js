@@ -244,6 +244,16 @@ describe("applyTo", function () {
     expect(q.rows[0]).toEqual({username: "u1", jobID});
   });
 
+  test("throws bad request if duplicate entry", async function () {
+    try{
+      await User.applyTo("u1", jobID);
+      await User.applyTo("u1", jobID);
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  })
+
   test("not found if no such user", async function ()  {
     try {
       await User.applyTo("nope", jobID);

@@ -218,6 +218,8 @@ class User {
         const eMsg = err.detail.includes('username') ?
                       `No user with username: '${username}'` : `No job with id: ${jobID}`;
         throw new NotFoundError(eMsg);
+      } else if (err.code === "23505") {
+        throw new BadRequestError(`User '${username}' has already applied to job with id: ${jobID}`)
       }
     }
   }
