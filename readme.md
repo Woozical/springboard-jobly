@@ -59,9 +59,15 @@ This endpoint will respond with a list of all companies in the database, with th
 ``` json
 {
     "companies": [
-        {"handle", "name", "description", "numEmployees", "logoUrl"},
-        {"handle", "name", "description", "numEmployees", "logoUrl"},
-        ...
+        {
+            "handle": "valve",
+            "name": "Valve Corporation",
+            "description": "Will eventually release HL3",
+            "numEmployees":1000,
+            "logoUrl":"https://valvesoftware.com/logo.png"
+        },
+        // {"handle", "name", "description", "numEmployees", "logoUrl"},
+        //  ...
     ]
 }
 ```
@@ -86,9 +92,15 @@ E.g. `/companies/valve`:
         "numEmployees": 1000,
         "logoUrl": "https://www.valvesoftware.com/logo.png",
         "jobs": [
-            {"id", "title", "salary", "equity", "companyHandle"},
-            {"id", "title", "salary", "equity", "companyHandle"},
-            ...
+            {
+                "id": 20,
+                "title": "Milkman",
+                "salary": 60000,
+                "equity":"0.3",
+                "companyHandle":"valve"
+            },
+            // {"id", "title", "salary", "equity", "companyHandle"},
+            // ...
         ]
     }
 }
@@ -102,7 +114,7 @@ Creates a new entry in the companies table of the database. Include the followin
     "handle": "string, max 10 chars", 
     "name": "string, max 30 chars", 
     "description": "string",
-    "numEmployees": integer (min 0),
+    "numEmployees": 20 //integer (min 0),
     "logoUrl": "string, URI format"
 }
 ```
@@ -114,7 +126,7 @@ Update the data of an existing company in the database. Include any of the follo
 {
     "name": "string, max 30 chars",
     "description": "string",
-    "numEmployees": integer (min 0),
+    "numEmployees": 20 //integer (min 0),
     "logoUrl": "string, URI format"
 }
 ```
@@ -132,11 +144,18 @@ Delete the given entry from the companies table in the database. Will respond wi
 Will respond with a JSON object listing all of the current jobs in the database. It should be noted that `equity` is returned as a string in order to preserve precision.
 ```json
 {
-    "jobs": [
-        {"id", "title", "salary", "equity", "companyHandle"},
-        {"id", "title", "salary", "equity", "companyHandle"},
-        ...
-    ]
+    "jobs":
+        [
+            {
+                "id": 20,
+                "title": "Milkman",
+                "salary": 60000,
+                "equity":"0.3",
+                "companyHandle":"valve"
+            },
+            // {"id", "title", "salary", "equity", "companyHandle"},
+            // ...
+        ]
 }
 ```
 Like companies, the results of this route can also be filtered using the query string. The following parameters are available:
@@ -156,7 +175,13 @@ Will respond with more detailed information on the given job listing.
         "title": "Courier",
         "salary": 55000,
         "equity": "0.02",
-        "company": { "handle", "name", "description", "numEmployees", "logoUrl" }
+        "company": { 
+            "handle": "robco",
+            "name": "RobCo Industries",
+            "description": "Always wins",
+            "numEmployees": 5,
+            "logoUrl": "http://robco.com/logo.png"
+            }
     }
 }
 ```
@@ -171,11 +196,11 @@ Will respond with detailed information on the given job listing, including a lis
         "title": "Courier",
         "salary": 55000,
         "equity": "0.02",
-        "companyHandle": "house-ind",
+        "companyHandle": "robco",
         "applicants": [
-            {"username", "firstName", "lastName", "email", "isAdmin"},
-            {"username", "firstName", "lastName", "email", "isAdmin"},
-            ...
+            // {username, firstName, lastName, email, isAdmin},
+            // {username, firstName, lastName, email, isAdmin},
+            // ...
         ]
     }
 }
@@ -187,8 +212,8 @@ Will create a new entry in the jobs table of the database. Send the following in
 ```json
 {
     "title": "string",
-    "salary": integer (min 0),
-    "equity": number (min 0, max 1.0),
+    "salary": 40000, //integer (min 0)
+    "equity":  0.2, //number (min 0, max 1.0)
     "companyHandle": "string, must be valid existing company handle"
 }
 ```
@@ -200,8 +225,8 @@ Will update an existing job entry in the database with new data. Send any of the
 ```json
 {
     "title": "string",
-    "salary": integer (min 0),
-    "equity": number (min 0, max 1.0)
+    "salary": 30000, //integer (min 0),
+    "equity": 0.01 //number (min 0, max 1.0)
 }
 ```
 A successful request will be responded with data reflecting the up-to-date job information.
@@ -222,9 +247,9 @@ Responds with a json object containing a list of all users in the database.
 ```json
 {
     "users": [
-        {"username", "firstName", "lastName", "email", "isAdmin" },
-        {"username", "firstName", "lastName", "email", "isAdmin" },
-        ...
+        // {"username", "firstName", "lastName", "email", "isAdmin" },
+        // {"username", "firstName", "lastName", "email", "isAdmin" },
+        // ...
     ]
 }
 ```
@@ -255,9 +280,9 @@ Responds with a json object with data on the given user, as well as all of the j
         "email": "jdoe11@user.com",
         "isAdmin": false,
         "applications": [
-            {"id", "title", "salary", "equity", "companyHandle"},
-            {"id", "title", "salary", "equity", "companyHandle"},
-            ...
+            // {"id", "title", "salary", "equity", "companyHandle"},
+            // {"id", "title", "salary", "equity", "companyHandle"},
+            // ...
             ]
         }
 }
@@ -267,7 +292,14 @@ Responds with a json object with data on the given user, as well as all of the j
 Creates a new user in the database. This is NOT the registration endpoint --- instead, this is only for admin users to add new users. The payload required for this route is the same schema as [/auth/register](#post-authregister), except that `isAdmin` can be included to create a new admin user. The route responds with the newly created user and an authentication token for them:
 ```json
     {
-       "user": { "username", "firstName", "lastName", "email", "isAdmin" }, "token" 
+       "user": { 
+           "username" : "jd1988", 
+           "firstName": "jane", 
+           "lastName": "doe", 
+           "email": "jdoe88@user.com", 
+           "isAdmin": true 
+           }, 
+        "token" :  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtc2ciOiJjb25ncmF0dWxhdGlvbnMiLCJob3dldmVyIjoibm90IGEgdmVyeSByZXdhcmRpbmcgc2VjcmV0LCBpcyBpdD8ifQ.PpjeIMk-mILsVOG-eLDcgmrmkXyNTnXRt01bFMfbtSU"
     }
 ```
 
