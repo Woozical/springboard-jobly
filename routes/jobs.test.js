@@ -36,7 +36,7 @@ describe("POST /jobs", function () {
         .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
-      job: {...newJob, id: expect.any(Number)},
+      job: {...newJob, equity: "0.5", id: expect.any(Number)},
     });
   });
 
