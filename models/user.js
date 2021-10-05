@@ -223,7 +223,12 @@ class User {
   }
 
   /** Returns an object with user data and an array of job data for each job that user
-   *  has applied to. Throws NotFoundError if user does not have any applications.
+   *  has applied to. Throws NotFoundError if username not found.
+   * 
+   *  uName => {
+   *    user: {username, firstName, lastName, email, isAdmin, applications}
+   *    where applications is: [ { id, title, salary, equity, companyHandle }, ...]
+   *    
    */
 
   static async getApplied(uName){
@@ -232,18 +237,25 @@ class User {
       email, is_admin AS "isAdmin", jobs.id, jobs.title, jobs.salary, jobs.equity,
       jobs.company_handle AS "companyHandle"
       FROM users
-      JOIN applications a ON a.username = users.username
-      JOIN jobs ON a.job_id = jobs.id
+      LEFT JOIN applications a ON a.username = users.username
+      LEFT JOIN jobs ON a.job_id = jobs.id
       WHERE users.username = $1`, [uName]
     );
-    if (result.rowCount < 1) throw new NotFoundError(`No applications found with username: '${uName}`);
+    
+    if (result.rowCount < 1) throw new NotFoundError(`No user found with username: '${uName}`);
+    
     const { username, firstName, lastName, email, isAdmin } = result.rows[0];
-    const applications = result.rows.map(
-      ({id, title, salary, equity, companyHandle}) => ({id, title, salary, equity, companyHandle})
-    );
-    const user = { username, firstName, lastName, email, isAdmin };
-    return { user, applications };
-
+    let applications = [];
+    // Build out our array of user objects if we got at least one row of user data from the query
+    if (result.rows[0].id){
+      applications = result.rows.map(
+        ({id, title, salary, equity, companyHandle}) => ({id, title, salary, equity, companyHandle})
+      );
+    }
+    
+    const user = { username, firstName, lastName, email, isAdmin, applications };
+    
+    return user
   }
 }
 

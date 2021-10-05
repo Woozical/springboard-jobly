@@ -268,33 +268,35 @@ describe("getApplied", function () {
     const jobID = q.rows[0].id;
     await User.applyTo("u1", jobID);
     const result = await User.getApplied("u1");
-    expect(result).toEqual({
-      user: {
+    expect(result).toEqual(
+      {
         username: "u1",
         firstName: "U1F",
         lastName: "U1L",
         email: "u1@email.com",
         isAdmin: false,
-      },
-      applications: [
+        applications: [
         {
           id: jobID,
           title: "j1",
           salary: 1000,
           equity: "0.1",
           companyHandle: "c1"
-        }
-      ]
-    });
+        }]
+      });
   });
 
-  test("not found if no applications", async function () {
-    try{
-      await User.getApplied("u1");
-      fail();
-    } catch (err) {
-      expect(err instanceof NotFoundError).toBeTruthy();
-    }
+  test("works with no applications", async function () {
+    const result = await User.getApplied("u1");
+    expect(result).toEqual(
+      {
+        username: "u1",
+        firstName: "U1F",
+        lastName: "U1L",
+        email: "u1@email.com",
+        isAdmin: false,
+        applications: []
+      });
   });
 
   test("not found if no such user", async function () {
