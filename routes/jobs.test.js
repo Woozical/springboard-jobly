@@ -166,7 +166,7 @@ describe("PATCH /jobs/:id", function () {
     id = q.rows[0].id;
   });
 
-  test("works for users", async function () {
+  test("works for admins", async function () {
     const resp = await request(app)
         .patch(`/jobs/${id}`)
         .send({
@@ -223,15 +223,46 @@ describe("PATCH /jobs/:id", function () {
     expect(resp.statusCode).toEqual(400);
   });
 
+  test("bad request on companyHandle change attempt", async function () {
+    const resp = await request(app)
+        .patch(`/jobs/${id}`)
+        .send({
+          companyHandle: "c3"
+        })
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(400);
+  })
+
   test("bad request on invalid data", async function () {
     const resp = await request(app)
-        .patch(`/jobs/c1`)
+        .patch(`/jobs/${id}`)
         .send({
-          title: "",
+          salary: "5000",
         })
         .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
   });
+
+  test("bad request on empty title", async function () {
+    const resp = await request(app)
+        .patch(`/jobs/${id}`)
+        .send({
+          title: ""
+        })
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(400);
+  });
+
+  test("bad request on null title", async function() {
+    const resp = await request(app)
+        .patch(`/jobs/${id}`)
+        .send({
+          title: null
+        })
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(400);
+  })
+
 });
 
 /************************************** GET /jobs?queryFilter */
