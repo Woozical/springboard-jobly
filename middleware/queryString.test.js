@@ -1,4 +1,4 @@
-const { cleanCompanyQString } = require('./queryString');
+const { cleanCompanyQString, cleanJobQString } = require('./queryString');
 const { BadRequestError } = require('../expressError');
 
 describe('Clean query string for Company filtering', function() {
@@ -37,3 +37,30 @@ describe('Clean query string for Company filtering', function() {
       expect(req.cleanQuery).toBeUndefined();
   });
 });
+
+describe('Clean query string for Job filtering', function() {
+    test('works', function() {
+        expect.assertions(2);
+        const req = { query : {title: 'dog', minSalary: 2, numDragons: 50, hasEquity: true} };
+        const res = {};
+        const next = function (err) {
+            expect(err).toBeFalsy()
+        };
+        cleanJobQString(req, res, next);
+        expect(req.cleanQuery).toEqual( {title: 'dog', minSalary: 2, hasEquity: true} );
+    });
+    test('No clean query on empty or completely invalid', function() {
+        expect.assertions(4);
+        let req = { query : {} };
+        const res = {};
+        const next = function (err) {
+            expect(err).toBeFalsy();
+        };
+        cleanJobQString(req, res, next);
+        expect(req.cleanQuery).toBeUndefined();
+  
+        req = { query : {numDragons: 50, favColor: 'green'} };
+        cleanJobQString(req, res, next);
+        expect(req.cleanQuery).toBeUndefined();
+    });
+  });
