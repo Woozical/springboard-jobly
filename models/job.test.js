@@ -119,6 +119,105 @@ describe("get", function () {
 
 /************************************** update */
 
+describe("update", function () {
+  const updateData = {
+    title: "New",
+    salary: 500,
+    equity: 0.5,
+  };
+
+  let id;
+  beforeEach(async function() {
+    const q = await db.query("SELECT id FROM jobs WHERE title = 'j1'");
+    id = q.rows[0].id;
+  });
+
+  test("works", async function () {
+    let job = await Job.update(id, updateData);
+    expect(job).toEqual({
+      ...updateData,
+      id,
+      equity: '0.5',
+      companyHandle: "c1",
+    });
+
+    const result = await db.query(
+          `SELECT id, title, salary, equity, company_handle
+           FROM jobs
+           WHERE id = $1`, [id]);
+    expect(result.rows).toEqual([{
+      id,
+      title: "New",
+      salary: 500,
+      equity: '0.5',
+      company_handle: "c1",
+    }]);
+  });
+
+  test("works: null fields", async function () {
+    const updateDataSetNulls = {
+      title: "New",
+      salary: null,
+      equity: null,
+    };
+
+    let job = await Job.update(id, updateDataSetNulls);
+    expect(job).toEqual({
+      id, 
+      companyHandle: "c1",
+      ...updateDataSetNulls,
+    });
+
+    const result = await db.query(
+          `SELECT id, title, salary, equity, company_handle
+           FROM jobs
+           WHERE id = $1`, [id]);
+    expect(result.rows).toEqual([{
+      id,
+      title: "New",
+      salary: null,
+      equity: null,
+      company_handle: "c1",
+    }]);
+  });
+
+  test("not found if no such job", async function () {
+    try {
+      const j = await Job.update(-1, updateData);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+  // TO DO: Move this handling to API schema validation?
+  test("bad request if no title", async function () {
+    const badData = {...updateData};
+    badData.title = '';
+    try {
+      await Job.update(id, badData);
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+    badData.title = null;
+    try {
+      await Job.update(id, badData);
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("bad request with no data", async function () {
+    try {
+      await Job.update(id, {});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
+
 /************************************** remove */
 
 /************************************** filter */
