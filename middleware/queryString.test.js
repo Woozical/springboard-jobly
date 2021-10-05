@@ -41,7 +41,7 @@ describe('Clean query string for Company filtering', function() {
 describe('Clean query string for Job filtering', function() {
     test('works', function() {
         expect.assertions(2);
-        const req = { query : {title: 'dog', minSalary: 2, numDragons: 50, hasEquity: true} };
+        const req = { query : {title: 'dog', minSalary: 2, numDragons: 50, hasEquity: 'true'} };
         const res = {};
         const next = function (err) {
             expect(err).toBeFalsy()

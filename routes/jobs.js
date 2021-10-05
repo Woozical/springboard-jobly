@@ -7,7 +7,7 @@ const express = require("express");
 
 const { BadRequestError } = require("../expressError");
 const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
-// const { cleanCompanyQString } = require("../middleware/queryString");
+const { cleanJobQString } = require("../middleware/queryString");
 const Job = require("../models/job");
 
 const jobNewSchema = require("../schemas/jobNew.json");
@@ -50,9 +50,9 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
  * Authorization required: none
  */
 
-router.get("/", async function (req, res, next) {
+router.get("/", cleanJobQString, async function (req, res, next) {
   try{
-    const jobs = await Job.findAll();
+    const jobs = req.cleanQuery ? await Job.filter(req.cleanQuery) : await Job.findAll();
     return res.json({ jobs })
   } catch (err) {
     return next(err);

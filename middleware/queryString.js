@@ -35,7 +35,7 @@ function cleanJobQString(req, res, next){
     const params = {};
     if (req.query.title) params.title = req.query.title;
     if (req.query.minSalary) params.minSalary = req.query.minSalary;
-    if (req.query.hasEquity) params.hasEquity = req.query.hasEquity;
+    if (req.query.hasEquity && req.query.hasEquity === 'true') params.hasEquity = true; // Models expect Boolean, not string "true"
     if (Object.keys(params).length > 0) req.cleanQuery = {...params};
   }
   return next();
