@@ -40,9 +40,9 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
 });
 
 /** GET /  =>
- *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
+ *   { jobs: [ { id, title, salary, equity, companyHandle }, ...] }
  *
- * Can filter on provided search filters:
+ * TO DO: Can filter on provided search filters:
  * - minEmployees
  * - maxEmployees
  * - name (will find case-insensitive, partial matches)
@@ -54,6 +54,23 @@ router.get("/", async function (req, res, next) {
   try{
     const jobs = await Job.findAll();
     return res.json({ jobs })
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** GET /[id]  =>  { job }
+ *
+ *  Job is { id, title, salary, equity, company }
+ *   where company is { handle, name, description, numEmployees, logoUrl }
+ *
+ * Authorization required: none
+ */
+
+router.get("/:id", async function (req, res, next) {
+  try {
+    const job = await Job.get(req.params.id);
+    return res.json({ job });
   } catch (err) {
     return next(err);
   }
