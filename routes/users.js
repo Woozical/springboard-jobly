@@ -131,7 +131,22 @@ router.post("/:username/jobs/:id", ensureLoggedIn, ensureSameUser, async functio
   } catch (err) {
     return next(err);
   }
-})
+});
+
+/** GET /[username]/applications => { user : { username, firstName, lastName, email, isAdmin, applications } }
+ *  where applications = [ {id, title, salary, equity, companyHandle }, ...]
+ * 
+ * Authorization required: login, same user / admin
+ **/
+
+router.get("/:username/applications", ensureLoggedIn, ensureSameUser, async function (req, res, next) {
+  try {
+    const user = await User.getApplied(req.params.username);
+    return res.json({ user });
+  } catch (err) {
+    return next(err);
+  }
+});
 
 
 module.exports = router;

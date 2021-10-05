@@ -451,3 +451,70 @@ describe("POST /users/:username/jobs/:id", function () {
       expect(resp.statusCode).toEqual(404);
   });
 });
+
+/************************************** GET /users/:username/applications */
+describe("GET /users/:username/applications", function () {
+  let jobID;
+  beforeEach(async function(){
+    const q = await db.query(`SELECT id FROM jobs WHERE title = 'j1'`);
+    jobID = q.rows[0].id;
+    await request(app).post(`/users/u1/jobs/${jobID}`).set("authorization", `Bearer ${adminToken}`);
+    await request(app).post(`/users/u2/jobs/${jobID}`).set("authorization", `Bearer ${adminToken}`);
+  });
+
+  test("works for admins", async function() {
+    const resp = await request(app)
+      .get("/users/u1/applications")
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      user : {
+        username: "u1",
+        firstName: "U1F",
+        lastName: "U1L",
+        email: "user1@user.com",
+        isAdmin: false,
+        applications: [
+          { id: jobID, title: "j1", salary: 1000, equity: "0.1", companyHandle: "c1"}
+        ]
+      }
+    });
+  });
+
+  test("works for same user", async function() {
+    const resp = await request(app)
+      .get("/users/u2/applications")
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.body).toEqual({
+      user : {
+        username: "u2",
+        firstName: "U2F",
+        lastName: "U2L",
+        email: "user2@user.com",
+        isAdmin: false,
+        applications: [
+          { id: jobID, title: "j1", salary: 1000, equity: "0.1", companyHandle: "c1"}
+        ]
+      }
+    });
+  });
+
+  test("forbidden for other users", async function () {
+    const resp = await request(app)
+        .get("/users/u1/applications")
+        .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(403);
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+        .get("/users/u1/applications");
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("responds 404 if invalid username", async function() {
+    const resp = await request(app)
+        .get("/users/nope/applications")
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(404);
+  });
+});
