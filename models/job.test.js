@@ -87,6 +87,36 @@ describe("findAll", function () {
 
 /************************************** get */
 
+describe("get", function () {
+  test("works", async function () {
+    const q = await db.query("SELECT id FROM jobs WHERE title = 'j1'");
+    const { id } = q.rows[0];
+    let job = await Job.get(id);
+    expect(job).toEqual({
+      id: expect.any(Number),
+      title: "j1",
+      salary: 1000,
+      equity: "0.1",
+      company: {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      },
+    });
+  });
+
+  test("not found if no such company", async function () {
+    try {
+      await Job.get(-1);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
 /************************************** update */
 
 /************************************** remove */
