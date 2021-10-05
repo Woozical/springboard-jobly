@@ -151,6 +151,19 @@ class Company {
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
   }
+
+  /**
+   * Performs a filtered selection from the database. These filters are defined
+   * by the 'params' argument, which is an object, where they key is the type of filter
+   * and the value is the expectation of that filter. Each 'params' key is mapped to a definition
+   * found at the top of this class, which defines how that filter type corresponds to SQL.
+   * 
+   * E.g. params = {name: 'micro', minEmployees: 100 };
+   * 
+   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...], where
+   * each object has 'micro' (case insensitive) appearing in its name, and a numEmployees of at least 100.
+   */
+
   static async filter(params) {
     // Define filters based on given params
     const filters = [];
