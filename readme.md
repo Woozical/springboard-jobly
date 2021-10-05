@@ -66,8 +66,7 @@ This endpoint will respond with a list of all companies in the database, with th
             "numEmployees":1000,
             "logoUrl":"https://valvesoftware.com/logo.png"
         },
-        // {"handle", "name", "description", "numEmployees", "logoUrl"},
-        //  ...
+        ...
     ]
 }
 ```
@@ -99,8 +98,7 @@ E.g. `/companies/valve`:
                 "equity":"0.3",
                 "companyHandle":"valve"
             },
-            // {"id", "title", "salary", "equity", "companyHandle"},
-            // ...
+            ...
         ]
     }
 }
@@ -108,14 +106,14 @@ E.g. `/companies/valve`:
 
 #### POST /companies
 ##### Auth Required: Admin
-Creates a new entry in the companies table of the database. Include the following in the payload of your request, `name`, `handle`, and `description` are required:
+Creates a new entry in the companies table of the database. Include the data matching the following schema in the payload of your request, `name`, `handle`, and `description` are required:
 ```json
 {
-    "handle": "string, max 10 chars", 
-    "name": "string, max 30 chars", 
-    "description": "string",
-    "numEmployees": 20 //integer (min 0),
-    "logoUrl": "string, URI format"
+    "handle": "valve", 
+    "name": "Valve Corporation", 
+    "description": "Will eventually release HL3",
+    "numEmployees": 1000,
+    "logoUrl": "http://valvesoftware.com/logo.png"
 }
 ```
 
@@ -126,7 +124,7 @@ Update the data of an existing company in the database. Include any of the follo
 {
     "name": "string, max 30 chars",
     "description": "string",
-    "numEmployees": 20 //integer (min 0),
+    "numEmployees": "integer, min 0",
     "logoUrl": "string, URI format"
 }
 ```
@@ -153,8 +151,7 @@ Will respond with a JSON object listing all of the current jobs in the database.
                 "equity":"0.3",
                 "companyHandle":"valve"
             },
-            // {"id", "title", "salary", "equity", "companyHandle"},
-            // ...
+            ...
         ]
 }
 ```
@@ -198,9 +195,14 @@ Will respond with detailed information on the given job listing, including a lis
         "equity": "0.02",
         "companyHandle": "robco",
         "applicants": [
-            // {username, firstName, lastName, email, isAdmin},
-            // {username, firstName, lastName, email, isAdmin},
-            // ...
+            {
+                "username": "jd1911",
+                "firstName": "John",
+                "lastName": "Doe",
+                "email": "jd11@user.com",
+                "isAdmin": false
+            },
+            ...
         ]
     }
 }
@@ -208,13 +210,13 @@ Will respond with detailed information on the given job listing, including a lis
 
 #### POST /jobs
 ##### Auth required: Admin
-Will create a new entry in the jobs table of the database. Send the following in the payload of your request, `title` and `companyHandle` are required:
+Will create a new entry in the jobs table of the database. Send the following in the payload of your request, `title` and `companyHandle` are required, and `companyHandle` must be a valid reference to an existing company:
 ```json
 {
-    "title": "string",
-    "salary": 40000, //integer (min 0)
-    "equity":  0.2, //number (min 0, max 1.0)
-    "companyHandle": "string, must be valid existing company handle"
+    "title": "new job",
+    "salary": 40000,
+    "equity":  0.2,
+    "companyHandle": "valvee"
 }
 ```
 A successful request will be responded to with data reflecting the newly created job, including its unique id in the database.
@@ -225,8 +227,8 @@ Will update an existing job entry in the database with new data. Send any of the
 ```json
 {
     "title": "string",
-    "salary": 30000, //integer (min 0),
-    "equity": 0.01 //number (min 0, max 1.0)
+    "salary": "integer, min 0",
+    "equity": "number, min 0, max 1.0"
 }
 ```
 A successful request will be responded with data reflecting the up-to-date job information.
@@ -247,9 +249,14 @@ Responds with a json object containing a list of all users in the database.
 ```json
 {
     "users": [
-        // {"username", "firstName", "lastName", "email", "isAdmin" },
-        // {"username", "firstName", "lastName", "email", "isAdmin" },
-        // ...
+        {
+            "username": "jd1911",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "jd11@user.com",
+            "isAdmin": false
+        },
+        ...
     ]
 }
 ```
@@ -280,11 +287,16 @@ Responds with a json object with data on the given user, as well as all of the j
         "email": "jdoe11@user.com",
         "isAdmin": false,
         "applications": [
-            // {"id", "title", "salary", "equity", "companyHandle"},
-            // {"id", "title", "salary", "equity", "companyHandle"},
-            // ...
-            ]
-        }
+            {
+                "id": 20,
+                "title": "Milkman",
+                "salary": 50000,
+                "equity": "0.025",
+                "companyHandle": "robco"
+            },
+            ...
+        ]
+    }
 }
 ```
 #### POST /users
