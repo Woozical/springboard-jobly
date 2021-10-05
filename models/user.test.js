@@ -228,3 +228,81 @@ describe("remove", function () {
     }
   });
 });
+
+/************************************** apply */
+describe("applyTo", function () {
+  let jobID;
+  beforeEach(async function (){
+    const q = await db.query("SELECT id FROM jobs WHERE title = 'j1'");
+    jobID = q.rows[0].id;
+  });
+
+  test("works", async function () {
+    await User.applyTo("u1", jobID);
+    const q = await db.query("SELECT username, job_id AS \"jobID\" FROM applications WHERE username = 'u1'");
+    expect(q.rows.length).toEqual(1);
+    expect(q.rows[0]).toEqual({username: "u1", jobID});
+  });
+
+  test("not found if no such user", async function ()  {
+    try {
+      await User.applyTo("nope", jobID);
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("not found if no such job", async function () {
+    try {
+      await User.applyTo("u1", -1);
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  })
+});
+
+/************************************** getApplied */
+describe("getApplied", function () {
+  test("works", async function () {
+    const q = await db.query("SELECT id FROM jobs WHERE title = 'j1'");
+    const jobID = q.rows[0].id;
+    await User.applyTo("u1", jobID);
+    const result = await User.getApplied("u1");
+    expect(result).toEqual({
+      user: {
+        username: "u1",
+        firstName: "U1F",
+        lastName: "U1L",
+        email: "u1@email.com",
+        isAdmin: false,
+      },
+      applications: [
+        {
+          id: jobID,
+          title: "j1",
+          salary: 1000,
+          equity: "0.1",
+          companyHandle: "c1"
+        }
+      ]
+    });
+  });
+
+  test("not found if no applications", async function () {
+    try{
+      await User.getApplied("u1");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("not found if no such user", async function () {
+    try{
+      await User.getApplied("nope");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});

@@ -204,6 +204,47 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
+
+  /** Create an entry in the applications associate table */
+
+  static async applyTo(username, jobID){
+    try{
+      await db.query(
+        `INSERT INTO applications (username, job_id)
+         VALUES ($1, $2)`, [username, jobID]
+      );
+    } catch (err) {
+      if (err.code === "23503"){
+        const eMsg = err.detail.includes('username') ?
+                      `No user with username: '${username}'` : `No job with id: ${jobID}`;
+        throw new NotFoundError(eMsg);
+      }
+    }
+  }
+
+  /** Returns an object with user data and an array of job data for each job that user
+   *  has applied to. Throws NotFoundError if user does not have any applications.
+   */
+
+  static async getApplied(uName){
+    const result = await db.query(
+      `SELECT users.username, first_name AS "firstName", last_name AS "lastName",
+      email, is_admin AS "isAdmin", jobs.id, jobs.title, jobs.salary, jobs.equity,
+      jobs.company_handle AS "companyHandle"
+      FROM users
+      JOIN applications a ON a.username = users.username
+      JOIN jobs ON a.job_id = jobs.id
+      WHERE users.username = $1`, [uName]
+    );
+    if (result.rowCount < 1) throw new NotFoundError(`No applications found with username: '${uName}`);
+    const { username, firstName, lastName, email, isAdmin } = result.rows[0];
+    const applications = result.rows.map(
+      ({id, title, salary, equity, companyHandle}) => ({id, title, salary, equity, companyHandle})
+    );
+    const user = { username, firstName, lastName, email, isAdmin };
+    return { user, applications };
+
+  }
 }
 
 
