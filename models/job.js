@@ -107,7 +107,24 @@ class Job{
     if (result.rowCount < 1) throw new NotFoundError(`Job with id ${jobID} does not exist`);
 
     return result.rows[0];
-    }
+  }
+
+ /** Delete given company from database; returns undefined.
+ *
+ * Throws NotFoundError if company not found.
+ **/
+
+  static async remove(jobID) {
+    const result = await db.query(
+          `DELETE
+            FROM jobs
+            WHERE id = $1
+            RETURNING id`,
+          [jobID]);
+
+  if (result.rowCount < 1) throw new NotFoundError(`No job with ID: ${jobID}`);
+  }
+
 }
 
 module.exports = Job;

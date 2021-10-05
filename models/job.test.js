@@ -220,4 +220,27 @@ describe("update", function () {
 
 /************************************** remove */
 
+describe("remove", function () {
+  let id;
+  beforeEach(async function() {
+    const q = await db.query("SELECT id FROM jobs WHERE title = 'j1'");
+    id = q.rows[0].id;
+  });
+  test("works", async function () {
+    await Job.remove(id);
+    const res = await db.query(
+        "SELECT title FROM jobs WHERE id = $1", [id]);
+    expect(res.rows.length).toEqual(0);
+  });
+
+  test("not found if no such company", async function () {
+    try {
+      await Job.remove(-1);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
 /************************************** filter */
