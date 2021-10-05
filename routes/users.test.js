@@ -390,3 +390,64 @@ describe("DELETE /users/:username", function () {
     expect(resp.statusCode).toEqual(404);
   });
 });
+
+/************************************** POST /users/:username/jobs/:id */
+describe("POST /users/:username/jobs/:id", function () {
+  let jobID;
+  beforeEach(async function (){
+    const q = await db.query("SELECT id FROM jobs WHERE title = 'j1'");
+    jobID = q.rows[0].id;
+  });
+
+  test("works for admins", async function () {
+    const resp = await request(app)
+        .post(`/users/u1/jobs/${jobID}`)
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual( {applied: `${jobID}`} );
+  });
+
+  test("works if logged in user == username", async function () {
+    const resp = await request(app)
+        .post(`/users/u2/jobs/${jobID}`)
+        .set("authorization", `Bearer ${userToken}`);
+    expect(resp.body).toEqual( {applied: `${jobID}` } );
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+        .post(`/users/u1/jobs/${jobID}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("forbidden for not same user", async function () {
+    const resp = await request(app)
+        .post(`/users/u1/jobs/${jobID}`)
+        .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(403);
+  });
+
+  test("respond with 400 if duplicate app", async function () {
+    const resp = await request(app)
+        .post(`/users/u1/jobs/${jobID}`)
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual( {applied: `${jobID}`} );
+    const resp2 = await request(app)
+        .post(`/users/u1/jobs/${jobID}`)
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp2.statusCode).toEqual(400);
+  })
+
+  test("responds with 404 if invalid username", async function() {
+    const resp = await request(app)
+        .post(`/users/nope/jobs/${jobID}`)
+        .set("authorization", `Bearer ${adminToken}`);
+      expect(resp.statusCode).toEqual(404);
+  });
+
+  test("respond with 404 if invalid job id", async function () {
+    const resp = await request(app)
+        .post(`/uses/u1/jobs/-1`)
+        .set("authorization", `Bearer ${adminToken}`);
+      expect(resp.statusCode).toEqual(404);
+  });
+});
