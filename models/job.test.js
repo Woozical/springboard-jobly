@@ -189,24 +189,24 @@ describe("update", function () {
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
-  // TO DO: Move this handling to API schema validation?
-  test("bad request if no title", async function () {
-    const badData = {...updateData};
-    badData.title = '';
-    try {
-      await Job.update(id, badData);
-      fail();
-    } catch (err) {
-      expect(err instanceof BadRequestError).toBeTruthy();
-    }
-    badData.title = null;
-    try {
-      await Job.update(id, badData);
-      fail();
-    } catch (err) {
-      expect(err instanceof BadRequestError).toBeTruthy();
-    }
-  });
+  /** HANDLING OF THIS HAS BEEN MOVED TO API SCHEMA VALIDATION */
+  // test("bad request if no title", async function () {
+  //   const badData = {...updateData};
+  //   badData.title = '';
+  //   try {
+  //     await Job.update(id, badData);
+  //     fail();
+  //   } catch (err) {
+  //     expect(err instanceof BadRequestError).toBeTruthy();
+  //   }
+  //   badData.title = null;
+  //   try {
+  //     await Job.update(id, badData);
+  //     fail();
+  //   } catch (err) {
+  //     expect(err instanceof BadRequestError).toBeTruthy();
+  //   }
+  // });
 
   test("bad request with no data", async function () {
     try {

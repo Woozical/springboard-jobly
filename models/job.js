@@ -25,13 +25,13 @@ class Job{
       );
       return result.rows[0];
     } catch (err) {
-      if (err.code === "23503") throw new BadRequestError(`company handle '${companyHandle}' is invalid`);
+      if (err.code === "23503") throw new BadRequestError(`companyHandle: '${companyHandle}' is invalid`);
     }
   }
 
-   /** Find all companies.
+   /** Find all jobs.
    *
-   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   * Returns [{ id, title, salary, equity, companyHandle }, ...]
    * */
   static async findAll(){
     const companiesRes = await db.query(
@@ -72,22 +72,19 @@ class Job{
 
   }
 
-  /** Update company data with `data`.
+  /** Update job data with `data`.
   *
   * This is a "partial update" --- it's fine if data doesn't contain all the
   * fields; this only changes provided ones.
   *
-  * Data can include: {name, description, numEmployees, logoUrl}
+  * Data can include: {title, salary, equity}
   *
-  * Returns {handle, name, description, numEmployees, logoUrl}
+  * Returns {id, title, salary, equity, companyHandle}
   *
   * Throws NotFoundError if not found.
   */
 
   static async update(jobID, data) {
-    // TO DO: Move this handling to API schema validation?
-    if (data.title === null || data.title === '') throw new BadRequestError('Title must not be null or empty string');
-
     const { setCols, values } = sqlForPartialUpdate(
       data,
       {
@@ -109,10 +106,10 @@ class Job{
     return result.rows[0];
   }
 
- /** Delete given company from database; returns undefined.
- *
- * Throws NotFoundError if company not found.
- **/
+  /** Delete given job from database; returns undefined.
+  *
+  * Throws NotFoundError if job not found.
+  */
 
   static async remove(jobID) {
     const result = await db.query(
