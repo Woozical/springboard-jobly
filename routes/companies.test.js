@@ -162,7 +162,7 @@ describe("GET /companies/:handle", function () {
 /************************************** PATCH /companies/:handle */
 
 describe("PATCH /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for admins", async function () {
     const resp = await request(app)
         .patch(`/companies/c1`)
         .send({
@@ -229,6 +229,8 @@ describe("PATCH /companies/:handle", function () {
     expect(resp.statusCode).toEqual(400);
   });
 });
+
+/************************************** GET /companies?queryFilter */
 
 describe("GET /companies?queryStringFilter", function () {
   test("filter by case insensitive company name", async function() {
@@ -329,7 +331,7 @@ describe("GET /companies?queryStringFilter", function () {
 /************************************** DELETE /companies/:handle */
 
 describe("DELETE /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for admins", async function () {
     const resp = await request(app)
         .delete(`/companies/c1`)
         .set("authorization", `Bearer ${adminToken}`);
