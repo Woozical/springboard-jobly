@@ -394,3 +394,52 @@ describe("DELETE /jobs/:id", function () {
     expect(resp.statusCode).toEqual(404);
   });
 });
+
+/************************************** GET /jobs/:id/applicants */
+
+describe("GET /jobs/:id/applicants", function () {
+  let id;
+  beforeEach(async function () {
+    const q = await db.query("SELECT id FROM jobs WHERE title = 'j1'");
+    id = q.rows[0].id;
+    await request(app).post(`/users/u1/jobs/${id}`).set("authorization", `Bearer ${adminToken}`);
+  });
+
+  test("should work for admins", async function () {
+    const resp = await request(app)
+        .get(`/jobs/${id}/applicants`)
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      job: {
+        id,
+        title: "j1",
+        salary: 1000,
+        equity: "0.1",
+        companyHandle: "c1",
+        applicants: [
+          {username: "u1", firstName: "U1F", lastName: "U1L", email: "user1@user.com", isAdmin: false}
+        ]
+      }
+    });
+  });
+
+  test("forbidden for users", async function () {
+    const resp = await request(app)
+        .get(`/jobs/${id}/applicants`)
+        .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(403);
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+        .get(`/jobs/${id}/applicants`)
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("responds 404 on invalid job id", async function () {
+    const resp = await request(app)
+        .get(`/jobs/-1/applicants`)
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(404);
+  });
+});

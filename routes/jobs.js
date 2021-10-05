@@ -116,4 +116,19 @@ router.delete("/:id", ensureLoggedIn, ensureAdmin, async function (req, res, nex
   }
 });
 
+/** GET /[id]/applicants => { job: { id, title, salary, equity, companyHandle, applicants } }
+ *  where applicants = [ {username, firstName, lastName, email, isAdmin }, ... ]
+ * 
+ * Authorization: login, admin
+ */
+
+router.get("/:id/applicants", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
+  try {
+    const job = await Job.getApplicants(req.params.id);
+    return res.json( { job } );
+  } catch (err) {
+    return next(err);
+  }
+});
+
 module.exports = router;
