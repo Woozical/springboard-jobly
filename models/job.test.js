@@ -244,3 +244,65 @@ describe("remove", function () {
 });
 
 /************************************** filter */
+
+describe("filter", function () {
+  test("works", async function() {
+    await db.query(
+      `INSERT INTO jobs (title, salary, equity, company_handle)
+       VALUES ('nj2', 1000, 0, 'c1')`)
+
+    let filters = {title: "2"};
+    let jobs = await Job.filter(filters);
+    expect(jobs).toEqual([
+      {
+      id: expect.any(Number),
+      title: "j2",
+      salary: 2000,
+      equity: "0.2",
+      companyHandle: "c2",
+      },
+      {
+      id: expect.any(Number),
+      title: "nj2",
+      salary: 1000,
+      equity: "0",
+      companyHandle: "c1",
+    }]);
+
+    filters = {title: "2", hasEquity: true}
+    jobs = await Job.filter(filters);
+    expect(jobs).toEqual([
+      {
+        id: expect.any(Number),
+        title: "j2",
+        salary: 2000,
+        equity: "0.2",
+        companyHandle: "c2",
+      }
+    ])
+
+    filters = {minSalary: 10000};
+    jobs = await Job.filter(filters);
+    expect(jobs).toEqual([]);
+
+    filters = {minSalary: 2000};
+    jobs = await Job.filter(filters);
+    expect(jobs).toEqual([
+      {
+        id: expect.any(Number),
+        title: "j2",
+        salary: 2000,
+        equity: "0.2",
+        companyHandle: "c2",
+      },
+      {
+        id: expect.any(Number),
+        title: "j3",
+        salary: 3000,
+        equity: "0.3",
+        companyHandle: "c3",
+      }
+    ]);
+    
+  });
+});

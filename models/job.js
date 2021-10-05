@@ -1,11 +1,25 @@
 "use strict"
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
-const { sqlForPartialUpdate } = require('../helpers/sql');
+const { sqlForPartialUpdate, sqlForFilter } = require('../helpers/sql');
 
 /* Related functions for jobs. */
 
 class Job{
+
+  /** Static property, maps query string parameter keys to objects of the filter interface
+  * that are used by sqlForFilter. Used for constructing WHERE clauses for filtering/searching.
+  * Available params:
+  *   hasEquity (if true, filter where equity > 0)
+  *   minSalary (filter where salary > value)
+  *   title (filter where value appears in title, case insensitive)
+  */
+  static filterDefinitions = {
+    hasEquity : {column: "equity", operation: ">", value: 0},
+    minSalary : {column: "salary", operation: ">="},
+    title: {column: "title", operation: "ILIKE"}
+  }
+
   /** Create a job (from data), update db, return new job data.
   *
   * data should be { title, salary, equity, company_handle }
@@ -121,7 +135,45 @@ class Job{
 
   if (result.rowCount < 1) throw new NotFoundError(`No job with ID: ${jobID}`);
   }
+  /**
+  * Performs a filtered selection from the database. These filters are defined
+  * by the 'params' argument, which is an object, where they key is the type of filter
+  * and the value is the expectation of that filter. Each 'params' key is mapped to a definition
+  * found at the top of this class, which defines how that filter type corresponds to SQL.
+  * 
+  * E.g. params = {title: 'engineer', minSalary: 50000 };
+  * Returns [{ id, title, salary, equity, companyHandle }, ...], where
+  * each object has 'engineer' (case insensitive) appearing in its title, and a salary of at least 50000.
+  */
 
+  static async filter(params) {
+    // Define filters based on given params
+    const filters = [];
+    for (let key in params){
+      const filter = Job.filterDefinitions[key]
+      if (key === 'hasEquity' && params[key] === true){
+        // The filter for hasEquity is fully defined up top in the static property
+        // If hasEquity parameter is set to anything but true, just ignore it and dont create a filter
+        filters.push(filter)
+      } else {
+        filter.value = params[key];
+        filters.push(filter);
+      }
+    }
+    // Build WHERE clause
+    const whereClause = sqlForFilter(filters);
+    const jobsRes = await db.query(
+      `SELECT id,
+              title,
+              salary,
+              equity,
+              company_handle AS "companyHandle"
+        FROM jobs
+        WHERE ${whereClause.string}
+        ORDER BY title`,
+        whereClause.values);
+    return jobsRes.rows;
+  }
 }
 
 module.exports = Job;
