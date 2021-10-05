@@ -174,6 +174,42 @@ class Job{
         whereClause.values);
     return jobsRes.rows;
   }
+
+  /**
+   * Returns an object with job data and an array of user data for each user
+   * that has applied to the given job. Will return an empty array if there are
+   * no applicants. Throws NotFoundError if invalid job id given.
+   * 
+   *  jobID => {
+   *    job: { id, title, salary, equity, companyHandle },
+   *    applicants: [ { username, firstName, lastName, email, isAdmin }, ... ]
+   *    }
+   */
+  static async getApplicants(jobID){
+    const result = await db.query(
+      `SELECT id, title, salary, equity, company_handle AS "companyHandle",
+      u.username, u.first_name AS "firstName", u.last_name AS "lastName",
+      u.email, u.is_admin AS "isAdmin"
+      FROM jobs
+      LEFT JOIN applications a ON jobs.id = a.job_id
+      LEFT JOIN users u ON a.username = u.username
+      WHERE jobs.id = $1`, [jobID]
+    );
+    
+    if (result.rowCount < 1) throw new NotFoundError(`No job with id: ${jobID}`);
+
+    const { id, title, salary, equity, companyHandle } = result.rows[0];
+    let applicants = [];
+    // Build out our array of user objects if we got at least one row of user data from the query
+    if (result.rows[0].username){
+      applicants = result.rows.map(
+        ({username, firstName, lastName, email, isAdmin}) => ({username, firstName, lastName, email, isAdmin})
+      );
+    }
+    const job = { id, title, salary, equity, companyHandle, applicants }
+    return job;
+
+  }
 }
 
 module.exports = Job;

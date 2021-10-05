@@ -306,3 +306,62 @@ describe("filter", function () {
     
   });
 });
+
+/************************************** getApplicants */
+
+describe("getApplicants", function() {
+  let jobID;
+  beforeEach(async function (){
+    const jobQuery = await db.query(`SELECT id FROM jobs WHERE title = 'j1'`);
+    jobID = jobQuery.rows[0].id;
+    await db.query(
+      `INSERT INTO applications (username, job_id)
+       VALUES ($1, $2)`, ["u1", jobID]
+    );
+  });
+
+  test("works", async function () {
+    const result = await Job.getApplicants(jobID);
+    expect(result).toEqual(
+      {
+        id: jobID,
+        title: "j1",
+        salary: 1000,
+        equity: "0.1",
+        companyHandle: "c1",
+        applicants: [
+          {
+            username: "u1",
+            firstName: "U1F",
+            lastName: "U1L",
+            email: "u1@email.com",
+            isAdmin: false
+          }
+        ]
+      }
+    );
+  });
+
+  test("works with no applicants", async function () {
+    await db.query('DELETE FROM applications');
+    const result = await Job.getApplicants(jobID);
+    expect(result).toEqual(
+      {
+        id: jobID,
+        title: "j1",
+        salary: 1000,
+        equity: "0.1",
+        companyHandle: "c1",
+        applicants: []
+      }
+    );
+  });
+
+  test("throws NotFoundError if invalid job id", async function () {
+    try{
+      await Job.getApplicants(-1);
+    } catch(err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
