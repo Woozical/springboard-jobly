@@ -49,12 +49,14 @@ class Job{
    * */
   static async findAll(){
     const companiesRes = await db.query(
-        `SELECT id,
-                title,
-                salary,
-                equity,
-                company_handle AS "companyHandle"
-         FROM jobs
+        `SELECT j.id,
+                j.title,
+                j.salary,
+                j.equity,
+                j.company_handle AS "companyHandle",
+                c.name AS "companyName"
+         FROM jobs j
+         LEFT JOIN companies AS c ON c.handle = j.company_handle
          ORDER BY title`);
     return companiesRes.rows;
   }
@@ -163,12 +165,14 @@ class Job{
     // Build WHERE clause
     const whereClause = sqlForFilter(filters);
     const jobsRes = await db.query(
-      `SELECT id,
-              title,
-              salary,
-              equity,
-              company_handle AS "companyHandle"
-        FROM jobs
+      `SELECT j.id,
+              j.title,
+              j.salary,
+              j.equity,
+              j.company_handle AS "companyHandle",
+              c.name AS "companyName"
+        FROM jobs j
+        LEFT JOIN companies AS c ON c.handle = j.company_handle
         WHERE ${whereClause.string}
         ORDER BY title`,
         whereClause.values);

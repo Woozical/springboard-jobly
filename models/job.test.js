@@ -66,6 +66,7 @@ describe("findAll", function () {
         salary: 1000,
         equity: "0.1",
         companyHandle: "c1",
+        companyName: "C1"
       },
       {
         id: expect.any(Number),
@@ -73,6 +74,7 @@ describe("findAll", function () {
         salary: 2000,
         equity: "0.2",
         companyHandle: "c2",
+        companyName: "C2"
       },
       {
         id: expect.any(Number),
@@ -80,6 +82,7 @@ describe("findAll", function () {
         salary: 3000,
         equity: "0.3",
         companyHandle: "c3",
+        companyName: "C3"
       },
     ]);
   });
@@ -260,6 +263,7 @@ describe("filter", function () {
       salary: 2000,
       equity: "0.2",
       companyHandle: "c2",
+      companyName: "C2"
       },
       {
       id: expect.any(Number),
@@ -267,6 +271,7 @@ describe("filter", function () {
       salary: 1000,
       equity: "0",
       companyHandle: "c1",
+      companyName: "C1"
     }]);
 
     filters = {title: "2", hasEquity: true}
@@ -278,6 +283,7 @@ describe("filter", function () {
         salary: 2000,
         equity: "0.2",
         companyHandle: "c2",
+        companyName: "C2"
       }
     ])
 
@@ -294,6 +300,7 @@ describe("filter", function () {
         salary: 2000,
         equity: "0.2",
         companyHandle: "c2",
+        companyName: "C2"
       },
       {
         id: expect.any(Number),
@@ -301,6 +308,7 @@ describe("filter", function () {
         salary: 3000,
         equity: "0.3",
         companyHandle: "c3",
+        companyName: "C3"
       }
     ]);
     

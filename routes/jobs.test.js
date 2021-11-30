@@ -92,6 +92,7 @@ describe("GET /jobs", function () {
               salary: 1000,
               equity: "0.1",
               companyHandle: "c1",
+              companyName: "C1"
             },
             {
               id: expect.any(Number),
@@ -99,6 +100,7 @@ describe("GET /jobs", function () {
               salary: 2000,
               equity: "0.2",
               companyHandle: "c2",
+              companyName: "C2"
             },
             {
               id: expect.any(Number),
@@ -106,6 +108,7 @@ describe("GET /jobs", function () {
               salary: 3000,
               equity: "0.3",
               companyHandle: "c3",
+              companyName: "C3"
             },
           ],
     });
@@ -278,6 +281,7 @@ describe("GET /jobs?queryStringFilter", function () {
             salary: 1000,
             equity: "0.1",
             companyHandle: "c1",
+            companyName: "C1"
           },
         ]
     });
@@ -295,6 +299,7 @@ describe("GET /jobs?queryStringFilter", function () {
             salary: 2000,
             equity: "0.2",
             companyHandle: "c2",
+            companyName: "C2"
           },
         ]
     });
@@ -311,6 +316,7 @@ describe("GET /jobs?queryStringFilter", function () {
             salary: 2000,
             equity: "0.2",
             companyHandle: "c2",
+            companyName: "C2"
           },
           {
             id: expect.any(Number),
@@ -318,6 +324,7 @@ describe("GET /jobs?queryStringFilter", function () {
             salary: 3000,
             equity: "0.3",
             companyHandle: "c3",
+            companyName: "C3"
           },
         ]
     });
@@ -338,6 +345,7 @@ describe("GET /jobs?queryStringFilter", function () {
             salary: 1000,
             equity: "0.1",
             companyHandle: "c1",
+            companyName: "C1"
           },
           {
             id: expect.any(Number),
@@ -345,6 +353,7 @@ describe("GET /jobs?queryStringFilter", function () {
             salary: 2000,
             equity: "0.2",
             companyHandle: "c2",
+            companyName: "C2"
           },
           {
             id: expect.any(Number),
@@ -352,6 +361,7 @@ describe("GET /jobs?queryStringFilter", function () {
             salary: 3000,
             equity: "0.3",
             companyHandle: "c3",
+            companyName: "C3"
           },
         ]
     });
